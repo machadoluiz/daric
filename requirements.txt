@@ -1,0 +1,5 @@
+polars
+google-auth
+google-api-python-client
+streamlit
+plotly
