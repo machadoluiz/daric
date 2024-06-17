@@ -12,7 +12,10 @@ class GoogleDriveExtractor:
 
     def __init__(self) -> None:
         """Initializes Google Drive credentials and service."""
-        creds_json = st.secrets["gcp_service_account"]
+        try:
+            creds_json = st.session_state["gcp_credentials_json"]
+        except KeyError:
+            creds_json = {}
         SCOPES: List[str] = [
             "https://www.googleapis.com/auth/drive.metadata.readonly",
             "https://www.googleapis.com/auth/drive",

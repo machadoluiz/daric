@@ -1,0 +1,14 @@
+{
+    "Category A": [
+        "Item 1",
+        "Item 2"
+    ],
+    "Category B": [
+        "Item 3"
+    ],
+    "Category C": [
+        "Item 4",
+        "Item 5",
+        "Item 6"
+    ]
+}
