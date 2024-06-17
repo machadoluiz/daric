@@ -57,7 +57,7 @@ class App:
             with st.expander("Category alternatives (optional)"):
                 category_keywords = st.file_uploader("Upload file", type="json")
                 with open(
-                    r"financial_tracker\data\category_keywords_template.json"
+                    "financial_tracker/data/category_keywords_template.json"
                 ) as template:
                     st.download_button(
                         "Download template",
@@ -91,7 +91,7 @@ class App:
             with st.expander("Category alternatives (optional)"):
                 category_keywords = st.file_uploader("Upload file", type="json")
                 with open(
-                    r"financial_tracker\data\category_keywords_template.json"
+                    "financial_tracker/data/category_keywords_template.json"
                 ) as template:
                     st.download_button(
                         "Download template",
@@ -156,11 +156,11 @@ class App:
         if data_source == "Sample data (demo)":
             account_data = self.load_data(
                 data_source=data_source,
-                path=r"financial_tracker\data\sample_account_data.csv",
+                path="financial_tracker/data/sample_account_data.csv",
             )
             credit_card_data = self.load_data(
                 data_source=data_source,
-                path=r"financial_tracker\data\sample_credit_card_data.csv",
+                path="financial_tracker/data/sample_credit_card_data.csv",
             )
         elif data_source == "Local files":
             account_files_path = st.session_state["account_files_path"]
