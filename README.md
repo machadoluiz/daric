@@ -2,6 +2,10 @@
 
 Daric is a Python-based web app that allows you to track your financial transactions and visualize your spending patterns.
 
+## 🎬 Demo
+
+![Demo](demo.gif)
+
 ## 🔥 Features
 
 - **Multiple Data Sources**: Supports loading data from sample files, local CSV files, and Google Drive folders.
