@@ -30,7 +30,7 @@ class App:
         self.data: Optional[pl.DataFrame] = None
         self.filtered_data: Optional[pl.DataFrame] = None
 
-    @st.experimental_dialog("📊 Daric · Financial Tracker")
+    @st.dialog("📊 Daric · Financial Tracker")
     def select_data_source(self):
         """Displays a dialog to select the data source."""
         data_source = st.radio(

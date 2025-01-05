@@ -41,22 +41,23 @@ class Transform:
         data: pl.DataFrame,
         date_format: str,
         amount_multiplier: int,
-        transaction_type: str,
+        transaction_type: str | pl.Expr,
         unwanted_keywords: List,
     ) -> pl.DataFrame:
-        """Processes data with common operations.
+        """
+        Processes data with common operations.
 
         Args:
             data (pl.DataFrame): The DataFrame containing the data.
             date_format (str): The format of the date column.
             amount_multiplier (int): The multiplier for the amount column.
-            transaction_type (str): The type of transaction.
+            transaction_type (str | pl.Expr): If a string, sets the entire column to that string. If an expression, evaluates row-by-row.
             unwanted_keywords (List): The list of unwanted keywords in the title.
 
         Returns:
             pl.DataFrame: A DataFrame with processed data.
         """
-        return (
+        data = (
             data.with_columns(
                 pl.col("date").str.strptime(pl.Date, format=date_format).alias("date")
             )
@@ -67,28 +68,14 @@ class Transform:
                 .otherwise(pl.lit("Saída"))
                 .alias("type")
             )
-            .with_columns(pl.lit(transaction_type).alias("transaction"))
-            .filter(~pl.col("title").is_in(unwanted_keywords))
         )
 
-    @staticmethod
-    def determine_transaction(title: str) -> str:
-        """Determines the type of transaction based on the title.
-
-        Args:
-            title (str): The title of the transaction.
-
-        Returns:
-            str: A string representing the type of transaction.
-        """
-        if title.startswith("Transferência"):
-            return "Transferência"
-        elif title.startswith("Estorno"):
-            return "Estorno"
-        elif title.startswith("Compra no débito"):
-            return "Débito"
+        if isinstance(transaction_type, pl.Expr):
+            data = data.with_columns(transaction_type.alias("transaction"))
         else:
-            return "Outros"
+            data = data.with_columns(pl.lit(transaction_type).alias("transaction"))
+
+        return data.filter(~pl.col("title").is_in(unwanted_keywords))
 
     @staticmethod
     def process_data_account(data: pl.DataFrame) -> pl.DataFrame:
@@ -105,8 +92,14 @@ class Transform:
             data,
             date_format="%d/%m/%Y",
             amount_multiplier=1,
-            transaction_type=data["title"].apply(
-                Transform.determine_transaction, return_dtype=pl.Utf8
+            transaction_type=(
+                pl.when(pl.col("title").str.starts_with("Transferência"))
+                .then(pl.lit("Transferência"))
+                .when(pl.col("title").str.starts_with("Estorno"))
+                .then(pl.lit("Estorno"))
+                .when(pl.col("title").str.starts_with("Compra no débito"))
+                .then(pl.lit("Débito"))
+                .otherwise(pl.lit("Outros"))
             ),
             unwanted_keywords=["Pagamento de fatura"],
         )

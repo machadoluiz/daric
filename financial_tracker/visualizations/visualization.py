@@ -161,7 +161,7 @@ class Visualization:
             st.delta_generator.DeltaGenerator: A Streamlit DeltaGenerator object representing the chart.
         """
         monthly_trend_data = (
-            data.groupby(pl.col("date").dt.strftime("%Y-%m"))
+            data.group_by(pl.col("date").dt.strftime("%Y-%m"))
             .agg(pl.sum("amount"))
             .sort("date")
         )
@@ -216,7 +216,7 @@ class Visualization:
             st.delta_generator.DeltaGenerator: A Streamlit DeltaGenerator object representing the chart.
         """
         total_expense_over_time = (
-            data.groupby("date").agg(pl.sum("amount")).sort(by="date")
+            data.group_by("date").agg(pl.sum("amount")).sort(by="date")
         )
         return st.altair_chart(
             altair_chart=(
