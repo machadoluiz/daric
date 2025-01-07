@@ -9,7 +9,9 @@ class Transform:
 
     @staticmethod
     def categorize_data(
-        data: pl.DataFrame, category_keywords: dict, alternative_category: str
+        data: pl.DataFrame,
+        category_keywords: dict[str, list[str]],
+        alternative_category: str | pl.Expr,
     ) -> pl.DataFrame:
         """Categorize data based on title keywords.
 

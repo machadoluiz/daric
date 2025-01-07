@@ -221,9 +221,12 @@ class App:
                         "Filter to the previous month", value=True
                     )
                     if date_option:
-                        max_date = self.data["date"].max()
-                        end_date = max_date.replace(day=1) - timedelta(days=1)
-                        start_date = end_date.replace(day=1)
+                        max_date = self.data.select(pl.col("date").max()).item()
+                        max_date_start = pl.Series([max_date]).dt.truncate("1mo")[0]
+
+                        end_date = max_date_start - timedelta(days=1)
+                        start_date = pl.Series([end_date]).dt.truncate("1mo")[0]
+
                         st.date_input("Start date", start_date, disabled=True)
                         st.date_input("End date", end_date, disabled=True)
                     else:
@@ -316,7 +319,7 @@ class App:
                 st.warning("The 'title' column is missing in the data.")
         st.dataframe(filtered_records, use_container_width=True)
 
-    def run(self, title: str) -> None:
+    def run(self, title: str, debug_mode: bool = False) -> None:
         """Runs the Streamlit app.
 
         Args:
@@ -333,9 +336,12 @@ class App:
             st.title(title)
             self.extractor = st.session_state.extractor
             self.transform_data(data_source=selected_data_source)
-            self.display_sidebar()
-            self.display_visualizations()
-            self.display_table()
+            if debug_mode is True:
+                st.dataframe(self.data, use_container_width=True)
+            else:
+                self.display_sidebar()
+                self.display_visualizations()
+                self.display_table()
 
 
 if __name__ == "__main__":
@@ -349,4 +355,6 @@ if __name__ == "__main__":
     transform = Transform()
     visualization = Visualization()
 
-    App(transform, visualization).run(title="📊 Daric · Financial Tracker")
+    App(transform, visualization).run(
+        title="📊 Daric · Financial Tracker", debug_mode=False
+    )

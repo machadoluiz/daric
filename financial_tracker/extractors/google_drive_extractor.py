@@ -1,5 +1,5 @@
 import io
-from typing import IO, Any, Dict, List
+from typing import IO, Any, Dict, List, cast
 
 import streamlit as st
 from google.oauth2.service_account import Credentials
@@ -35,12 +35,12 @@ class GoogleDriveExtractor:
         Returns:
             List[Dict[str, Any]]: A list of dictionaries containing file information.
         """
-        return (
+        response = (
             self.service.files()
             .list(q=f'"{folder_id}" in parents and mimeType="text/csv"')
             .execute()
-            .get("files", [])
         )
+        return cast(List[Dict[str, Any]], response.get("files", []))
 
     def download_file(self, file_id: str) -> IO[bytes]:
         """Downloads a file from Google Drive.
