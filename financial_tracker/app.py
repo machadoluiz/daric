@@ -102,7 +102,9 @@ class App:
                     )
             if st.button("Submit", type="primary", use_container_width=True):
                 st.session_state["data_source"] = data_source
-                st.session_state["gcp_credentials_json"] = json.load(gcp_credentials)
+                st.session_state["gcp_credentials_json"] = (
+                    json.load(gcp_credentials) if gcp_credentials else {}
+                )
                 st.session_state["extractor"] = ExtractorFactory.create_extractor(
                     data_source
                 )
@@ -115,7 +117,10 @@ class App:
 
     @st.cache_data
     def load_data(
-        _self, data_source: str, folder_id: str = None, path: str = None
+        _self,
+        data_source: str,
+        folder_id: Optional[str] = None,
+        path: Optional[str] = None,
     ) -> pl.DataFrame:
         """Loads data from the preferred extractor.
 
@@ -146,6 +151,8 @@ class App:
                 new_data = pl.read_csv(file_path)
                 _self.data = _self.data.vstack(new_data)
             return _self.data
+        else:
+            raise ValueError(f"Unsupported data source: {data_source}")
 
     def transform_data(self, data_source: str) -> None:
         """Transforms the loaded data.
@@ -186,6 +193,8 @@ class App:
             credit_card_data = self.load_data(
                 data_source=data_source, folder_id=st.session_state["credit_card"]
             )
+        else:
+            raise ValueError(f"Unsupported data source: {data_source}")
         self.data = self.transform.concat_sort_data(
             self.transform.process_data_account(account_data),
             self.transform.process_data_credit_card(credit_card_data),
@@ -231,9 +240,11 @@ class App:
                         st.date_input("End date", end_date, disabled=True)
                     else:
                         start_date = st.date_input(
-                            "Start date", self.data["date"].min()
+                            "Start date", self.data.select(pl.col("date").min()).item()
                         )
-                        end_date = st.date_input("End date", self.data["date"].max())
+                        end_date = st.date_input(
+                            "End date", self.data.select(pl.col("date").max()).item()
+                        )
                 types = st.multiselect(
                     "Types",
                     options=list(self.data["type"].unique(maintain_order=True).sort()),
