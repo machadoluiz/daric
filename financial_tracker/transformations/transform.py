@@ -1,7 +1,7 @@
 from typing import List
 
-import polars as pl
-import streamlit as st
+from polars import DataFrame, Date, Expr, col, concat, lit, when
+from streamlit import session_state
 
 
 class Transform:
@@ -9,85 +9,85 @@ class Transform:
 
     @staticmethod
     def categorize_data(
-        data: pl.DataFrame,
+        data: DataFrame,
         category_keywords: dict[str, list[str]],
-        alternative_category: str | pl.Expr,
-    ) -> pl.DataFrame:
+        alternative_category: str | Expr,
+    ) -> DataFrame:
         """Categorize data based on title keywords.
 
         Args:
-            data (pl.DataFrame): The DataFrame containing credit card data.
+            data (DataFrame): The DataFrame containing credit card data.
             category_keywords (dict): The dictionary containing category keywords for transactions.
             alternative_category (str): The string containing a value when the category criteria it met.
 
         Returns:
-            data (pl.DataFrame): A DataFrame with processed categorized data.
+            data (DataFrame): A DataFrame with processed categorized data.
         """
         if category_keywords:
             for category, keywords in category_keywords.items():
                 for keyword in keywords:
                     data = data.with_columns(
-                        pl.when(pl.col("title").str.contains(keyword))
-                        .then(pl.lit(category))
+                        when(col("title").str.contains(keyword))
+                        .then(lit(category))
                         .otherwise(alternative_category)
                         .alias("category")
                     )
         else:
             if "category" not in data.columns:
-                return data.with_columns(pl.lit("Outros").alias("category"))
-            return data.with_columns(pl.col("category").str.to_titlecase())
+                return data.with_columns(lit("Outros").alias("category"))
+            return data.with_columns(col("category").str.to_titlecase())
         return data
 
     @staticmethod
     def process_data(
-        data: pl.DataFrame,
+        data: DataFrame,
         date_format: str,
         amount_multiplier: int,
-        transaction_type: str | pl.Expr,
+        transaction_type: str | Expr,
         unwanted_keywords: List,
-    ) -> pl.DataFrame:
+    ) -> DataFrame:
         """
         Processes data with common operations.
 
         Args:
-            data (pl.DataFrame): The DataFrame containing the data.
+            data (DataFrame): The DataFrame containing the data.
             date_format (str): The format of the date column.
             amount_multiplier (int): The multiplier for the amount column.
-            transaction_type (str | pl.Expr): If a string, sets the entire column to that string. If an expression, evaluates row-by-row.
+            transaction_type (str | Expr): If a string, sets the entire column to that string. If an expression, evaluates row-by-row.
             unwanted_keywords (List): The list of unwanted keywords in the title.
 
         Returns:
-            pl.DataFrame: A DataFrame with processed data.
+            DataFrame: A DataFrame with processed data.
         """
         data = (
             data.with_columns(
-                pl.col("date").str.strptime(pl.Date, format=date_format).alias("date")
+                col("date").str.strptime(Date, format=date_format).alias("date")
             )
-            .with_columns((pl.col("amount") * amount_multiplier).alias("amount"))
+            .with_columns((col("amount") * amount_multiplier).alias("amount"))
             .with_columns(
-                pl.when(pl.col("amount") > 0)
-                .then(pl.lit("Entrada"))
-                .otherwise(pl.lit("Saída"))
+                when(col("amount") > 0)
+                .then(lit("Entrada"))
+                .otherwise(lit("Saída"))
                 .alias("type")
             )
         )
 
-        if isinstance(transaction_type, pl.Expr):
+        if isinstance(transaction_type, Expr):
             data = data.with_columns(transaction_type.alias("transaction"))
         else:
-            data = data.with_columns(pl.lit(transaction_type).alias("transaction"))
+            data = data.with_columns(lit(transaction_type).alias("transaction"))
 
-        return data.filter(~pl.col("title").is_in(unwanted_keywords))
+        return data.filter(~col("title").is_in(unwanted_keywords))
 
     @staticmethod
-    def process_data_account(data: pl.DataFrame) -> pl.DataFrame:
+    def process_data_account(data: DataFrame) -> DataFrame:
         """Processes account data.
 
         Args:
-            data (pl.DataFrame): The DataFrame containing account data.
+            data (DataFrame): The DataFrame containing account data.
 
         Returns:
-            pl.DataFrame: A DataFrame with processed account data.
+            DataFrame: A DataFrame with processed account data.
         """
         data = data.rename({"Data": "date", "Valor": "amount", "Descrição": "title"})
         data = Transform.process_data(
@@ -95,31 +95,31 @@ class Transform:
             date_format="%d/%m/%Y",
             amount_multiplier=1,
             transaction_type=(
-                pl.when(pl.col("title").str.starts_with("Transferência"))
-                .then(pl.lit("Transferência"))
-                .when(pl.col("title").str.starts_with("Estorno"))
-                .then(pl.lit("Estorno"))
-                .when(pl.col("title").str.starts_with("Compra no débito"))
-                .then(pl.lit("Débito"))
-                .otherwise(pl.lit("Outros"))
+                when(col("title").str.starts_with("Transferência"))
+                .then(lit("Transferência"))
+                .when(col("title").str.starts_with("Estorno"))
+                .then(lit("Estorno"))
+                .when(col("title").str.starts_with("Compra no débito"))
+                .then(lit("Débito"))
+                .otherwise(lit("Outros"))
             ),
             unwanted_keywords=["Pagamento de fatura"],
         )
         return Transform.categorize_data(
             data,
-            category_keywords=st.session_state["category_keywords_json"],
-            alternative_category=pl.lit("Outros"),
+            category_keywords=session_state["category_keywords_json"],
+            alternative_category=lit("Outros"),
         ).select(["date", "type", "transaction", "category", "title", "amount"])
 
     @staticmethod
-    def process_data_credit_card(data: pl.DataFrame) -> pl.DataFrame:
+    def process_data_credit_card(data: DataFrame) -> DataFrame:
         """Processes credit card data.
 
         Args:
-            data (pl.DataFrame): The DataFrame containing credit card data.
+            data (DataFrame): The DataFrame containing credit card data.
 
         Returns:
-            pl.DataFrame: A DataFrame with processed credit card data.
+            DataFrame: A DataFrame with processed credit card data.
         """
         data = Transform.process_data(
             data,
@@ -130,49 +130,49 @@ class Transform:
         )
         return Transform.categorize_data(
             data,
-            category_keywords=st.session_state["category_keywords_json"],
-            alternative_category=pl.col("category").str.to_titlecase(),
+            category_keywords=session_state["category_keywords_json"],
+            alternative_category=col("category").str.to_titlecase(),
         ).select(["date", "type", "transaction", "category", "title", "amount"])
 
     @staticmethod
-    def concat_sort_data(*data: pl.DataFrame, date_column: str) -> pl.DataFrame:
+    def concat_sort_data(*data: DataFrame, date_column: str) -> DataFrame:
         """Concatenates multiple DataFrames and sort by date
 
         Args:
-            *data (pl.DataFrame): The DataFrames to concatenate.
+            *data (DataFrame): The DataFrames to concatenate.
             date_column (str): The date column to sort by.
 
         Returns:
-            pl.DataFrame: A single DataFrame containing all the data sorted by date.
+            DataFrame: A single DataFrame containing all the data sorted by date.
         """
-        return pl.concat(data).sort(date_column, descending=True)
+        return concat(data).sort(date_column, descending=True)
 
     @staticmethod
     def filter_data(
-        data: pl.DataFrame,
-        start_date: pl.Date,
-        end_date: pl.Date,
+        data: DataFrame,
+        start_date: Date,
+        end_date: Date,
         types: List[str],
         transactions: List[str],
         categories: List[str],
-    ) -> pl.DataFrame:
+    ) -> DataFrame:
         """Filters data based on date and categories.
 
         Args:
-            data (pl.DataFrame): The DataFrame to filter.
-            start_date (pl.Date): The start date for filtering.
-            end_date (pl.Date): The end date for filtering.
+            data (DataFrame): The DataFrame to filter.
+            start_date (Date): The start date for filtering.
+            end_date (Date): The end date for filtering.
             types (List[str]): The types to include.
             transactions (List[str]): The transactions to include.
             categories (List[str]): The categories to include.
 
         Returns:
-            pl.DataFrame: A DataFrame containing the filtered data.
+            DataFrame: A DataFrame containing the filtered data.
         """
         return data.filter(
-            (pl.col("date") >= pl.lit(start_date))
-            & (pl.col("date") <= pl.lit(end_date))
-            & (pl.col("type").is_in(types))
-            & (pl.col("transaction").is_in(transactions))
-            & (pl.col("category").is_in(categories))
+            (col("date") >= lit(start_date))
+            & (col("date") <= lit(end_date))
+            & (col("type").is_in(types))
+            & (col("transaction").is_in(transactions))
+            & (col("category").is_in(categories))
         )

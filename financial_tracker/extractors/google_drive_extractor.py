@@ -1,10 +1,10 @@
-import io
+from io import BytesIO
 from typing import IO, Any, Dict, List, cast
 
-import streamlit as st
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
+from streamlit import session_state
 
 
 class GoogleDriveExtractor:
@@ -13,7 +13,7 @@ class GoogleDriveExtractor:
     def __init__(self) -> None:
         """Initializes Google Drive credentials and service."""
         try:
-            creds_json = st.session_state["gcp_credentials_json"]
+            creds_json = session_state["gcp_credentials_json"]
         except KeyError:
             creds_json = {}
         SCOPES: List[str] = [
@@ -52,7 +52,7 @@ class GoogleDriveExtractor:
             IO[bytes]: A BytesIO object containing the downloaded file data.
         """
         request = self.service.files().get_media(fileId=file_id)
-        downloaded: IO[bytes] = io.BytesIO()
+        downloaded = BytesIO()
         downloader = MediaIoBaseDownload(downloaded, request)
         done = False
         while not done:

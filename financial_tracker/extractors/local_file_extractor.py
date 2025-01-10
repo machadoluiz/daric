@@ -1,4 +1,5 @@
-import os
+from os import listdir
+from os.path import join
 from typing import List
 
 
@@ -18,7 +19,7 @@ class LocalFileExtractor:
         Returns:
             List[str]: A list of filenames in the folder.
         """
-        return os.listdir(path)
+        return listdir(path)
 
     def download_file(self, path: str, file: str) -> str:
         """Downloads a file from a local folder.
@@ -30,4 +31,4 @@ class LocalFileExtractor:
         Returns:
             str: The full file path.
         """
-        return os.path.join(path, file)
+        return join(path, file)
