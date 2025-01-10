@@ -7,28 +7,32 @@ class LocalFileExtractor:
     """Handles reading local files."""
 
     def __init__(self) -> None:
-        """Initializes the LocalFileExtractor with the file path."""
+        """Initializes the LocalFileExtractor."""
         pass
 
     def list_files(self, path: str) -> List[str]:
         """Lists files in a local folder.
 
         Args:
-            path (str): The path of the folder to list files from.
+            path: The path of the folder to list files from.
 
         Returns:
-            List[str]: A list of filenames in the folder.
+            A list of filenames in the folder.
+
+        Raises:
+            FileNotFoundError: If the specified path does not exist.
+            NotADirectoryError: If the specified path is not a directory.
         """
         return listdir(path)
 
     def download_file(self, path: str, file: str) -> str:
-        """Downloads a file from a local folder.
+        """Generates the full path to a file in a local folder.
 
         Args:
-            path (str): The path of the folder.
-            file (str): The name of the file to download.
+            path: The path of the folder.
+            file: The name of the file.
 
         Returns:
-            str: The full file path.
+            The full file path.
         """
         return join(path, file)

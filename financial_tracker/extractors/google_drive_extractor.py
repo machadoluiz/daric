@@ -11,11 +11,18 @@ class GoogleDriveExtractor:
     """Handles interactions with Google Drive."""
 
     def __init__(self) -> None:
-        """Initializes Google Drive credentials and service."""
+        """Initializes Google Drive credentials and service.
+
+        Raises:
+            KeyError: If 'gcp_credentials_json' is not found in session_state.
+        """
         try:
             creds_json = session_state["gcp_credentials_json"]
-        except KeyError:
-            creds_json = {}
+        except KeyError as e:
+            raise KeyError(
+                "Google Cloud Platform credentials JSON is missing in session_state."
+            ) from e
+
         SCOPES: List[str] = [
             "https://www.googleapis.com/auth/drive.metadata.readonly",
             "https://www.googleapis.com/auth/drive",
@@ -30,10 +37,10 @@ class GoogleDriveExtractor:
         """Lists files in a Google Drive folder.
 
         Args:
-            folder_id (str): The ID of the folder to list files from.
+            folder_id: The ID of the folder to list files from.
 
         Returns:
-            List[Dict[str, Any]]: A list of dictionaries containing file information.
+            A list of dictionaries containing file information.
         """
         response = (
             self.service.files()
@@ -46,10 +53,10 @@ class GoogleDriveExtractor:
         """Downloads a file from Google Drive.
 
         Args:
-            file_id (str): The ID of the file to download.
+            file_id: The ID of the file to download.
 
         Returns:
-            IO[bytes]: A BytesIO object containing the downloaded file data.
+            A BytesIO object containing the downloaded file data.
         """
         request = self.service.files().get_media(fileId=file_id)
         downloaded = BytesIO()

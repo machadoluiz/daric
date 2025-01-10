@@ -37,16 +37,12 @@ from visualizations.visualization import Visualization
 class App:
     """Main application class for the financial tracker."""
 
-    def __init__(
-        self,
-        transform: Transform,
-        visualization: Visualization,
-    ) -> None:
+    def __init__(self, transform: Transform, visualization: Visualization) -> None:
         """Initializes the App class with dependency injection.
 
         Args:
-            transform (Transform): The transformation logic.
-            visualization (Visualization): The visualization logic.
+            transform: The transformation logic.
+            visualization: The visualization logic.
         """
         self.extractor = None
         self.transform = transform
@@ -55,7 +51,7 @@ class App:
         self.filtered_data: Optional[DataFrame] = None
 
     @dialog("📊 Daric · Financial Tracker")
-    def select_data_source(self):
+    def select_data_source(self) -> None:
         """Displays a dialog to select the data source."""
         data_source = radio(
             label="Choose your data source",
@@ -147,25 +143,25 @@ class App:
         """Loads data from the preferred extractor.
 
         Args:
-            data_source (str): The type of data source.
-            folder_id (str, optional): The ID of the folder containing the data files.
-            path (str, optional): The path to the local files.
+            data_source: The type of data source.
+            folder_id: The ID of the folder containing the data files.
+            path: The path to the local files.
 
         Returns:
-            DataFrame: A DataFrame containing the loaded data.
+            A DataFrame containing the loaded data.
         """
         if data_source == "Sample data (demo)":
             _self.data = DataFrame()
             new_data = read_csv(path)
             return _self.data.vstack(new_data)
-        elif data_source == "Local files":
+        if data_source == "Local files":
             _self.data = DataFrame()
             for file in path:
                 file_path = BytesIO(file.read())
                 new_data = read_csv(file_path)
                 _self.data = _self.data.vstack(new_data)
             return _self.data
-        elif data_source == "Google Drive":
+        if data_source == "Google Drive":
             files = _self.extractor.list_files(folder_id=folder_id)
             _self.data = DataFrame()
             for file in files:
@@ -173,14 +169,13 @@ class App:
                 new_data = read_csv(file_path)
                 _self.data = _self.data.vstack(new_data)
             return _self.data
-        else:
-            raise ValueError(f"Unsupported data source: {data_source}")
+        raise ValueError(f"Unsupported data source: {data_source}")
 
     def transform_data(self, data_source: str) -> None:
         """Transforms the loaded data.
 
         Args:
-            data_source (str): The type of data source.
+            data_source: The type of data source.
         """
         if data_source == "Sample data (demo)":
             account_data = self.load_data(
@@ -194,8 +189,9 @@ class App:
         elif data_source == "Local files":
             account_files_path = session_state["account_files_path"]
             credit_card_files_path = session_state["credit_card_files_path"]
-            if ("uploaded_account_data" not in session_state) and (
-                "uploaded_credit_card_data" not in session_state
+            if (
+                "uploaded_account_data" not in session_state
+                and "uploaded_credit_card_data" not in session_state
             ):
                 account_data = self.load_data(
                     data_source=data_source, path=account_files_path
@@ -217,6 +213,7 @@ class App:
             )
         else:
             raise ValueError(f"Unsupported data source: {data_source}")
+
         self.data = self.transform.concat_sort_data(
             self.transform.process_data_account(account_data),
             self.transform.process_data_credit_card(credit_card_data),
@@ -352,7 +349,8 @@ class App:
         """Runs the Streamlit app.
 
         Args:
-            title (str): The main title displayed in the app.
+            app_title: The main title displayed in the app.
+            debug_mode: Whether to enable debug mode for the app.
         """
         if session_state["refresh_data"] is True:
             cache_data.clear()
@@ -365,7 +363,7 @@ class App:
             title(app_title)
             self.extractor = session_state.extractor
             self.transform_data(data_source=selected_data_source)
-            if debug_mode is True:
+            if debug_mode:
                 dataframe(self.data, use_container_width=True)
             else:
                 self.display_sidebar()

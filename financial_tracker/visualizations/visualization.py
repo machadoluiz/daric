@@ -13,11 +13,11 @@ class Visualization:
         """Calculates the total amount for the specified metric in the previous month.
 
         Args:
-            data (DataFrame): The DataFrame containing the financial data.
-            metric_type (str): The type of metric to calculate ('income', 'expenses', or 'net').
+            data: The DataFrame containing the financial data.
+            metric_type: The type of metric to calculate ('income', 'expenses', or 'net').
 
         Returns:
-            float: The total amount for the specified metric in the previous month.
+            The total amount for the specified metric in the previous month.
         """
         max_date = data.select(col("date").max()).item()
         max_date_start = Series([max_date]).dt.truncate("1mo")[0]
@@ -33,18 +33,17 @@ class Visualization:
             return (
                 last_month_data.filter(col("amount") > 0).select(sum("amount")).item()
             )
-        elif metric_type == "expenses":
+        if metric_type == "expenses":
             return (
                 last_month_data.filter(col("amount") < 0).select(sum("amount")).item()
             )
-        else:
-            return last_month_data.select(sum("amount")).item()
+        return last_month_data.select(sum("amount")).item()
 
     def display_total_income(self, data: DataFrame) -> None:
         """Displays total income metric.
 
         Args:
-            data (DataFrame): The DataFrame containing the financial data.
+            data: The DataFrame containing the financial data.
         """
         total_income = data.filter(col("amount") > 0).select(sum("amount")).item()
         last_month_income = self.get_last_month_amount(data, "income")
@@ -59,7 +58,7 @@ class Visualization:
         """Displays total expenses metric.
 
         Args:
-            data (DataFrame): The DataFrame containing the financial data.
+            data: The DataFrame containing the financial data.
         """
         total_expenses = data.filter(col("amount") < 0).select(sum("amount")).item()
         last_month_expenses = self.get_last_month_amount(data, "expenses")
@@ -74,7 +73,7 @@ class Visualization:
         """Displays net amount metric.
 
         Args:
-            data (DataFrame): The DataFrame containing the financial data.
+            data: The DataFrame containing the financial data.
         """
         net_amount = data.select(sum("amount")).item()
         last_month_net = self.get_last_month_amount(data, "net")
@@ -90,7 +89,7 @@ class Visualization:
         """Creates a table of the top income.
 
         Args:
-            data (DataFrame): The DataFrame containing the data.
+            data: The DataFrame containing the data.
         """
         dataframe(
             data=(
@@ -107,7 +106,7 @@ class Visualization:
         """Creates a table of the top expenses.
 
         Args:
-            data (DataFrame): The DataFrame containing the data.
+            data: The DataFrame containing the data.
         """
         dataframe(
             data=(
@@ -124,7 +123,7 @@ class Visualization:
         """Creates a monthly net trend bar chart.
 
         Args:
-            data (DataFrame): The DataFrame containing the data.
+            data: The DataFrame containing the data.
         """
         monthly_trend_data = (
             data.group_by(col("date").dt.strftime("%Y-%m"))
@@ -147,7 +146,7 @@ class Visualization:
         """Creates a bar chart.
 
         Args:
-            data (DataFrame): The DataFrame containing the data.
+            data: The DataFrame containing the data.
         """
         grouped_data = data.group_by(
             [col("date").dt.strftime("%Y-%m"), "category"], maintain_order=True
@@ -169,7 +168,7 @@ class Visualization:
         """Creates a line chart.
 
         Args:
-            data (DataFrame): The DataFrame containing the data.
+            data: The DataFrame containing the data.
         """
         total_expense_over_time = (
             data.group_by("date").agg(sum("amount")).sort(by="date")
@@ -186,7 +185,7 @@ class Visualization:
         """Creates a horizontal bar chart.
 
         Args:
-            data (DataFrame): The DataFrame containing the data.
+            data: The DataFrame containing the data.
         """
         data_counts = data["category"].value_counts()
         altair_chart(
@@ -201,7 +200,7 @@ class Visualization:
         """Creates a scatter plot.
 
         Args:
-            data (DataFrame): The DataFrame containing the data.
+            data: The DataFrame containing the data.
         """
         altair_chart(
             Chart(data)
