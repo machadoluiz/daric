@@ -1,0 +1,35 @@
+[project]
+name = "daric"
+version = "0.1.0"
+description = "Daric is a Python-based web app that allows you to track your financial transactions and visualize your spending patterns."
+authors = [{ name = "Luiz Machado" }]
+requires-python = ">=3.9"
+keywords = ["daric"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial",
+]
+dependencies = [
+    "altair>=5.5.0",
+    "google-api-python-client>=2.158.0",
+    "google-api-python-client-stubs>=1.28.0",
+    "google-auth>=2.37.0",
+    "polars>=1.19.0",
+    "streamlit>=1.41.1",
+]
+readme = "README.md"
+
+[dependency-groups]
+dev = ["pre-commit>=4.0.1", "uv>=0.5.18"]
