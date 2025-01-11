@@ -30,3 +30,6 @@ dependencies = [
     "streamlit>=1.41.1",
 ]
 readme = "README.md"
+
+[dependency-groups]
+dev = ["pre-commit>=4.0.1", "uv>=0.5.18"]

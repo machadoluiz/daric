@@ -1,6 +1,5 @@
 from os import listdir
 from os.path import join
-from typing import List
 
 
 class LocalFileExtractor:
@@ -10,7 +9,7 @@ class LocalFileExtractor:
         """Initializes the LocalFileExtractor."""
         pass
 
-    def list_files(self, path: str) -> List[str]:
+    def list_files(self, path: str) -> list[str]:
         """Lists files in a local folder.
 
         Args:

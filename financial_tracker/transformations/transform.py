@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Union
 
 from polars import DataFrame, Date, Expr, col, concat, lit, when
 from streamlit import session_state
@@ -10,7 +10,7 @@ class Transform:
     @staticmethod
     def categorize_data(
         data: DataFrame,
-        category_keywords: Dict[str, List[str]],
+        category_keywords: dict[str, list[str]],
         alternative_category: Union[str, Expr],
     ) -> DataFrame:
         """Categorizes data based on title keywords.
@@ -44,7 +44,7 @@ class Transform:
         date_format: str,
         amount_multiplier: int,
         transaction_type: Union[str, Expr],
-        unwanted_keywords: List[str],
+        unwanted_keywords: list[str],
     ) -> DataFrame:
         """Processes data with common operations.
 
@@ -151,9 +151,9 @@ class Transform:
         data: DataFrame,
         start_date: Date,
         end_date: Date,
-        types: List[str],
-        transactions: List[str],
-        categories: List[str],
+        types: list[str],
+        transactions: list[str],
+        categories: list[str],
     ) -> DataFrame:
         """Filters data based on date, type, transactions, and categories.
 

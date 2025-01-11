@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import IO, Any, Dict, List, cast
+from typing import IO, Any, cast
 
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
@@ -23,7 +23,7 @@ class GoogleDriveExtractor:
                 "Google Cloud Platform credentials JSON is missing in session_state."
             ) from e
 
-        SCOPES: List[str] = [
+        SCOPES: list[str] = [
             "https://www.googleapis.com/auth/drive.metadata.readonly",
             "https://www.googleapis.com/auth/drive",
         ]
@@ -33,7 +33,7 @@ class GoogleDriveExtractor:
         )
         self.service = build("drive", "v3", credentials=self.creds)
 
-    def list_files(self, folder_id: str) -> List[Dict[str, Any]]:
+    def list_files(self, folder_id: str) -> list[dict[str, Any]]:
         """Lists files in a Google Drive folder.
 
         Args:
@@ -47,7 +47,7 @@ class GoogleDriveExtractor:
             .list(q=f'"{folder_id}" in parents and mimeType="text/csv"')
             .execute()
         )
-        return cast(List[Dict[str, Any]], response.get("files", []))
+        return cast(list[dict[str, Any]], response.get("files", []))
 
     def download_file(self, file_id: str) -> IO[bytes]:
         """Downloads a file from Google Drive.

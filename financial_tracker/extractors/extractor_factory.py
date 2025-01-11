@@ -1,5 +1,3 @@
-from typing import Type
-
 from .google_drive_extractor import GoogleDriveExtractor
 from .local_file_extractor import LocalFileExtractor
 
@@ -7,7 +5,7 @@ from .local_file_extractor import LocalFileExtractor
 class ExtractorFactory:
     """Factory class to create data extractors."""
 
-    _extractors: dict[str, Type[object]] = {
+    _extractors: dict[str, type[object]] = {
         "Sample data (demo)": LocalFileExtractor,
         "Local files": LocalFileExtractor,
         "Google Drive": GoogleDriveExtractor,
