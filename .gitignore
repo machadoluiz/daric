@@ -132,6 +132,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# uv
+uv.lock
+
 ### Python Patch ###
 # Poetry local configuration file - https://python-poetry.org/docs/configuration/#local-configuration
 poetry.toml
