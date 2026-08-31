@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       # General file hygiene checks (fast and prevent unnecessary processing)
       - id: end-of-file-fixer
@@ -24,34 +24,34 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.1
+    rev: v3.21.2
     hooks:
       # Code modernization
       - id: pyupgrade
         args: [--py39-plus]
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+    rev: 9.0.1
     hooks:
       # Import sorting
       - id: isort
         args: ["--profile", "black"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.1
+    rev: v0.16.5
     hooks:
       # Linting and formatting
       - id: ruff-format
       - id: ruff
 
   - repo: https://github.com/PyCQA/bandit
-    rev: "1.8.0"
+    rev: "1.9.4"
     hooks:
       # Security analysis
       - id: bandit
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.5.18
+    rev: 0.12.7
     hooks:
       # Custom lock file management
       - id: uv-lock
